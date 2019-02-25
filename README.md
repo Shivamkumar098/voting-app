@@ -1,2 +1,2 @@
 # Voting-Application
-A BlockChain Example implementing an voting Application using Sawtooth Framework 
+A BlockChain application implementing a voting system using Sawtooth Framework 
