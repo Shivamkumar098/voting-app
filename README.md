@@ -1,5 +1,5 @@
 # Voting-Application
-A BlockChain application implementing a Voting System using Sawtooth Framework 
+A Blockchain application implementing a Voting System using Sawtooth Framework 
 
 
 
