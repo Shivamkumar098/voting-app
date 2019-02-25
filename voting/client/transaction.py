@@ -16,7 +16,7 @@ from sawtooth_sdk.protobuf.batch_pb2 import Batch
 
 # The Transaction Family Name
 FAMILY_NAME = 'voting'
-# TF Prefix is first 6 characters of SHA-512("cookiejar"), a4d219
+
 
 def _hash(data):
     return hashlib.sha512(data).hexdigest()
@@ -26,15 +26,13 @@ def create_address(mode='user',name='name'):
 
 
 class VotingClient(object):
-    '''Client Cookie Jar class
-
-    Supports "bake", "eat", and "count" functions.
+    '''Client  class
+    
+    Supports "vote","list","add" functions.
     '''
 
     def __init__(self, base_url, key_file=None):
         '''Initialize the client class.
-
-           This is mainly getting the key pair and computing the address.
         '''
         self._base_url = base_url
 
@@ -61,22 +59,27 @@ class VotingClient(object):
         self._public_key = self._signer.get_public_key().as_hex()
 
     def vote(self,party,name):
-     print('voting ........'+str(party)+'.....person..'+name)     
+     '''
+     Performs voting for a party with a given user name or id
+     '''      
      paddr=create_address(mode='voting',name=party)
      uaddr=create_address(name=name)
-     #self._wrap_and_send(paddr,"party",1,wait=10)
-     #self._wrap_and_send(uaddr,"user", 1, wait=10)
      self._wrap_and_send(paddr,"vote", 1, wait=10,uaddress=uaddr)
      print('.......response........')
      
      
     def add(self,party):
-        print('adding party.........'+str(' '.join(party)))
-        paddr=create_address(mode='voting',name=' '.join(party))
+        '''
+        Adds a new party to election party list
+        '''
+        paddr=create_address(mode='voting',name=party)
         self._wrap_and_send(paddr,"create",0,wait=10)
         print('.............response.........')
 
     def list_parties(self,party):
+        '''
+        Counts and displays number of votes to the party
+        '''
         print('display parties .........')
         paddr=create_address(mode='voting',name=party)
         res = self._send_to_rest_api("state/{}".format(paddr))        
@@ -89,6 +92,9 @@ class VotingClient(object):
         print('.........response.........')    
 			
     def _send_to_rest_api(self, suffix, data=None, content_type=None):
+        '''
+        sends request to rest api
+        '''
         url = "{}/{}".format(self._base_url, suffix)
         print("URL to send to REST API is {}".format(url))
 
@@ -115,6 +121,9 @@ class VotingClient(object):
         return result.text
 
     def _wait_for_status(self, batch_id, wait, result):
+        '''
+        waits for result from rest api
+        '''
         if wait and wait > 0:
             waited = 0
             start_time = time.time()
@@ -133,6 +142,9 @@ class VotingClient(object):
 
 
     def _wrap_and_send(self,address,action, amount, wait=None,uaddress=''):
+        '''
+        create and send transactions in batches  
+        '''
         raw_payload = ",".join([action, str(amount)])
         payload = raw_payload.encode()
         input_and_output_address_list=[]

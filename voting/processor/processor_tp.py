@@ -34,19 +34,14 @@ class VotingTransactionHandler(TransactionHandler):
 
     def apply(self, transaction, context):
         '''This implements the apply function for the TransactionHandler class.
-
            The apply function does most of the work for this class by
-           processing a transaction for the cookiejar transaction family.
+           processing a transaction for the transaction family.
         '''
         header = transaction.header
         payload_list = transaction.payload.decode().split(",")
         action = payload_list[0]
         addrs = header.inputs[0]        
-        if action == "party":
-            self._update_party(context, addrs)
-        elif action=="user": 
-             return self._update_user(context, addrs)
-        elif action=="create":
+        if action=="create":
               self._create_party(context, addrs)   
         elif action=="vote":
             LOGGER.info(header.inputs)
@@ -77,6 +72,8 @@ class VotingTransactionHandler(TransactionHandler):
             LOGGER.info('Creating a vote')
             if VotingTransactionHandler._update_user(context, uaddrs):
                 VotingTransactionHandler._update_party(context, addrs)
+            else:
+                raise InvalidTransaction("User Already Voted")    
 
     @classmethod
     def _update_user(cls, context, addrs,timeout=5):
@@ -88,7 +85,6 @@ class VotingTransactionHandler(TransactionHandler):
             addresses = context.set_state({addrs: state_data})
             return True
         else:
-               #raise InvalidTransaction("Already Voted")
                return False 
         
 
@@ -103,7 +99,7 @@ class VotingTransactionHandler(TransactionHandler):
             raise InvalidTransaction("Party already exists")    
 
 def main():
-    '''Entry-point function for the cookiejar Transaction Processor.'''
+    '''Entry-point function for the Transaction Processor.'''
     try:
         # Setup logging for this class.
         logging.basicConfig()
